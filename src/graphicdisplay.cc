@@ -1,4 +1,3 @@
-
 // LOCAL
 #include "game_param.h"
 #include "graphicdisplay.h"

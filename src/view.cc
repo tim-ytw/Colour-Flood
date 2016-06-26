@@ -1,4 +1,3 @@
-
 // LOCAL
 #include "view.h"
 

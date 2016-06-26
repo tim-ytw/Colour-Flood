@@ -1,4 +1,3 @@
-
 // LOCAL
 #include "graphicdisplay.h"
 #include "cell.h"
@@ -8,7 +7,6 @@ using namespace std;
 
 extern const int MAXNEIGHBOURS;
 extern const int kBackgroundColor;
-
 
 Cell::Cell()
 {

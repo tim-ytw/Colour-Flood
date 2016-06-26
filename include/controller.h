@@ -8,7 +8,6 @@
 #include "game.h"
 #include "view.h"
 
-
 class Controller
 {
 public:

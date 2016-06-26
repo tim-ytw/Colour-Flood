@@ -1,11 +1,4 @@
-//
-//  game_param.cpp
-//  ColourFlood
-//
-//  Created by Tim on 2016-06-26.
-//  Copyright © 2016 Tim. All rights reserved.
-//
-
+// LOCAL
 #include "game_param.h"
 
 const int GRID_SIZE = 10;

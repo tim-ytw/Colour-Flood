@@ -1,7 +1,6 @@
 #ifndef MOUSE_INPUT_H
 #define MOUSE_INPUT_H
 
-
 // SDL2
 #include "SDL2/SDL.h"
 

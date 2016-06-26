@@ -1,4 +1,3 @@
-
 // LOCAL
 #include "graphicdisplay.h"
 #include "controller.h"

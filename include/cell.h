@@ -1,15 +1,10 @@
 #ifndef CELL_H
 #define CELL_H
 
-
-#include <iostream>
-
-
-class Game;
-
 const int MAXNEIGHBOURS = 4;
 extern const int kBackgroundColor;
 
+class Game;
 
 class Cell
 {
@@ -26,8 +21,8 @@ public:
 	void SetGame(Game * game);
 
 	void AddNeighbour(Cell *neighbour);
-	void Notify( const int & change);
-	void Notify( const int & current, const int & previous); 
+	void Notify(const int & change);
+	void Notify(const int & current, const int & previous);
 
 private:
   void Notify() const;
