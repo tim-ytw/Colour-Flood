@@ -1,7 +1,6 @@
 
 // LOCAL
 #include "game.h"
-#include "cell.h"
 #include "controller.h"
 
 // CPP
@@ -18,10 +17,10 @@ extern const int COLOURTYPES;
 
 Game::Game(Controller* gn)
 {
-  grids_ = NULL;
   grid_size_ = 0;
   controller_ = gn;
   moves_left_ = 0;
+  grids_ = NULL;
 }
 
 
@@ -43,10 +42,12 @@ void Game::Init(int n, int _moves)
 	grid_size_ = n;
   
 	int rows = n, columns = n;
-	grids_ = new Cell*[rows];
+	grids_ = new int*[rows];
+  visited_ = new bool*[rows];
 	for (int r = 0; r < rows; r++)
 	{
-		grids_[r] = new Cell[columns];
+		grids_[r] = new int[columns];
+    visited_[r] = new bool[columns];
 	}
   for (int i = 0; i < COLOURTYPES; i++)
   {
@@ -60,19 +61,10 @@ void Game::Init(int n, int _moves)
 		{
 			int color = rand() % COLOURTYPES + 1;
 			colours_[color] ++;
-			
-			Cell* current = &(grids_[r][c]);
-			current->SetGame(this);
-			current->setCoords(r, c);
-			current->SetState(color);
-			
+      grids_[r][c] = color;
 			controller_->Notify(r, c, color);
-			
-			if(r != rows-1) grids_[r+1][c].AddNeighbour(current);
-			if(c != columns-1) grids_[r][c+1].AddNeighbour(current);
-			if(r != 0) grids_[r-1][c].AddNeighbour(current);
-			if(c != 0) grids_[r][c-1].AddNeighbour(current);
-		}
+      visited_[r][c] = false;
+    }
 	}
 }
 
@@ -94,14 +86,31 @@ bool Game::IsWon()const
 bool Game::Change(const int& state)
 {
   if (state < 0) return false;
-	if (state == grids_[0][0].GetState())
+	if (state == grids_[0][0])
 	{
-		controller_->UpdateMessage("Please click on a different colour :)");
+		controller_->UpdateMessage("Please click on a different colour : )");
 		return false;
 	}
   moves_left_ --;
-	grids_[0][0].Notify(state);
+  int prev_state = grids_[0][0];
+  Flood(0, 0, prev_state, state);
 	return true;
+}
+
+
+
+void Game::Flood(int row, int col, int prev_state, int new_state)
+{
+  if (grids_[row][col] == prev_state)
+  {
+    visited_[row][col] = true;
+    grids_[row][col] = new_state;
+    Notify(row, col, prev_state, new_state);
+    if(row != 0) Flood(row-1, col, prev_state, new_state);
+    if(col != 0) Flood(row, col-1, prev_state, new_state);
+    if(row != grid_size_-1) Flood(row+1, col, prev_state, new_state);
+    if(col != grid_size_-1) Flood(row, col+1, prev_state, new_state);
+  }
 }
 
 

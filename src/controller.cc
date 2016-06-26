@@ -49,11 +49,12 @@ void Controller::Play()
   while (!quit_ && !game_.IsWon())
   {
     UpdateMessage(game_.GetGameStatus());
-    game_.Change(input.getMove());
+    if (!game_.Change(input.getMove()))
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
   
   UpdateMessage(game_.GetGameStatus());
-  std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+  if (!quit_) std::this_thread::sleep_for(std::chrono::milliseconds(2000));
   
   delete display_;
   display_ = NULL;
