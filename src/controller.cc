@@ -4,7 +4,8 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>
-#include <ctime>
+#include <chrono>
+#include <thread>
 
 // LOCAL
 #include "controller.h"
@@ -50,6 +51,9 @@ void Controller::Play()
     UpdateMessage(game_.GetGameStatus());
     game_.Change(input.getMove());
   }
+  
+  UpdateMessage(game_.GetGameStatus());
+  std::this_thread::sleep_for(std::chrono::milliseconds(2500));
   
   delete display_;
   display_ = NULL;

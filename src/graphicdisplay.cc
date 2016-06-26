@@ -156,7 +156,7 @@ void GraphicDisplay::InitSDL(){
 		throw "SDL Initialization Failed: " + string(SDL_GetError());
 	}
 	
-	window_ = SDL_CreateWindow("Floodit", WINDOW_X, WINDOW_Y,
+	window_ = SDL_CreateWindow("Colour-Flood", WINDOW_X, WINDOW_Y,
 																 WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 	
 	if (window_ == NULL)

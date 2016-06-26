@@ -117,11 +117,11 @@ string Game::GetGameStatus() const
 {
   if (IsWon() && moves_left_ > 0)
   {
-    return "Won";
+    return "You Win";
   }
   else if (moves_left_ == 0)
   {
-    return "Lost";
+    return "You Lost";
   }
   else
   {
