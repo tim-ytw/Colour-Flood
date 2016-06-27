@@ -210,7 +210,8 @@ void Show(int** arr, int size)
   }
 }
 
-int color_left[COLOURTYPES];
+
+
 bool** visited;
 
 void reset()
@@ -260,8 +261,6 @@ int Count(int** grids, int size, int row, int col, int colour)
 
 
 
-
-
 std::stack<int> FindMinMoves(int** arr, int size, int moves_allowed)
 {
   if (IsComplete(arr, size)) return std::stack<int>();
@@ -283,22 +282,13 @@ std::stack<int> FindMinMoves(int** arr, int size, int moves_allowed)
     
     /* Try to do one flood */
     int** copy = CopyArray(arr, size);
-    
-    cout << "Before:" << endl;
-    Show(copy, size);
-    
-    reset();
     Floodit(copy, size, 0, 0, origin_color, i);
     reset();
     int count = Count(copy, size, 0, 0, copy[0][0]);
     reset();
     
-    cout << "After: count: " << count << endl;
-    Show(copy, size);
-    
     counts[i] = count;
     copies[i] = copy;
-    
     if (count == size * size) break;
   }
   
@@ -318,8 +308,6 @@ std::stack<int> FindMinMoves(int** arr, int size, int moves_allowed)
 }
 
 
-
-
 std::stack<int> Game::RunAI()
 {
   visited = new bool*[grid_size_];
@@ -331,16 +319,13 @@ std::stack<int> Game::RunAI()
       visited[r][c] = false;
     }
   }
-  for (int i = 0; i <= COLOURTYPES; i++)
-  {
-    color_left[i] = colours_[i];
-  }
+  
   int** grids = CopyArray(grids_, grid_size_);
   already = Count(grids, grid_size, 0, 0, grids[0][0]);
   std::stack<int> result = FindMinMoves(grids, grid_size_, moves_left_);
   
   vector<int> temp;
-  cout << "AI Suggests: (" << result.size() << " steps)" << endl;
+  cout << "AI Suggests:" << endl;
   while (!result.empty())
   {
     int color = result.top();
@@ -348,25 +333,19 @@ std::stack<int> Game::RunAI()
     result.pop();
     temp.push_back(color);
   }
-  
   while (!temp.empty())
   {
     result.push(temp.back());
     temp.pop_back();
   }
-  
+  cout << result.size() << " steps in total" << endl;
   
   for (int c = 0; c < grid_size_; c++)
   {
     delete grids[c];
   }
   delete grids;
-
-  for (int r = 0; r < grid_size_; r++)
-  {
-    delete visited[r];
-  }
-  delete visited;
+  reset();
   
   return result;
 }
