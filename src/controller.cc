@@ -44,13 +44,17 @@ void Controller::Play()
   
   game_ = Game(this);
   MouseInput input(this);
-  game_.Init(gridDimension, moves_);
+  // game_.Init(gridDimension, moves_);
+  game_.Init(3, moves_);
   
-  while (!quit_ && !game_.IsWon())
+  while (quit_ && !game_.IsWon())
   {
-    UpdateMessage(game_.GetGameStatus());
-    if (!game_.Change(input.getMove()))
-      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    ostringstream oss;
+    oss << " (Recommand: " << kColorNames[game_.GetAIMove()] << ")";
+    UpdateMessage(game_.GetGameStatus()+oss.str());
+    
+    if (game_.Change(input.getMove()))
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
   
   UpdateMessage(game_.GetGameStatus());
