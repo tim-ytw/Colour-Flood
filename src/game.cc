@@ -73,13 +73,6 @@ void Game::Init(int n, int _moves)
 	}
   
   ai_inputs = RunAI();
-  
-  cout << "Suggest: " << endl;
-  while (!ai_inputs.empty())
-  {
-    cout << ai_inputs.top() << endl;
-    ai_inputs.pop();
-  }
 }
 
 
@@ -170,7 +163,7 @@ inline int** CopyArray(int** arr, int size)
 
 
 int colours[COLOURTYPES+1];
-
+int already = 1;
 inline bool IsComplete(int** arr, int size)
 {
   for (int r = 0; r <= COLOURTYPES; r++)
@@ -232,25 +225,41 @@ void reset()
 }
 
 
-int already = 0;
-
-
-int Floodit(int** grids, int size, int row, int col, int prev_state, int new_state)
+void Floodit(int** grids, int size, int row, int col, int prev_state, int new_state)
 {
-  if (visited[row][col]) return 0;
+  if (visited[row][col]) return;
   visited[row][col] = true;
   if (grids[row][col] == prev_state)
   {
-    int count = 1;
     grids[row][col] = new_state;
-    if(row != 0) count += Floodit(grids, size, row-1, col, prev_state, new_state);
-    if(col != 0) count += Floodit(grids, size, row, col-1, prev_state, new_state);
-    if(row != size-1) count += Floodit(grids, size, row+1, col, prev_state, new_state);
-    if(col != size-1) count += Floodit(grids, size, row, col+1, prev_state, new_state);
-    return count;
+    if(row != 0) Floodit(grids, size, row-1, col, prev_state, new_state);
+    if(col != 0) Floodit(grids, size, row, col-1, prev_state, new_state);
+    if(row != size-1) Floodit(grids, size, row+1, col, prev_state, new_state);
+    if(col != size-1) Floodit(grids, size, row, col+1, prev_state, new_state);
   }
-  return (grids[row][col] == new_state)? 1 : 0;
 }
+
+
+
+int Count(int** grids, int size, int row, int col, int colour)
+{
+  if (visited[row][col]) return 0;
+  visited[row][col] = true;
+  int count = 0;
+  if (grids[row][col] == colour)
+  {
+    count ++;
+    if(row != 0) count += Count(grids, size, row-1, col, colour);
+    if(col != 0) count += Count(grids, size, row, col-1, colour);
+    if(row != size-1) count += Count(grids, size, row+1, col, colour);
+    if(col != size-1) count += Count(grids, size, row, col+1, colour);
+  }
+  return count;
+}
+
+
+
+
 
 
 std::stack<int> FindMinMoves(int** arr, int size, int moves_allowed)
@@ -262,24 +271,32 @@ std::stack<int> FindMinMoves(int** arr, int size, int moves_allowed)
   
   for (int i = 1; i <= COLOURTYPES; i++)
   {
+    /* Pick a different colour */
     if (i == arr[0][0] || colours[i] == 0) continue;
     
+    /* Try to do one flood */
     int** copy = CopyArray(arr, size);
+    cout << "Before: " << endl;
     Show(copy, size);
-    cout << "Flood colour: " << i << endl;
-    int count = Floodit(copy, size, 0, 0, origin_color, i);
-    Show(copy, size);
-    cout << "Count: " << count << endl;
     reset();
+    Floodit(copy, size, 0, 0, origin_color, i);
+    reset();
+    int count = Count(copy, size, 0, 0, copy[0][0]);
+    cout << "After: (already: " << already << ",count: "
+          << count << ", colour: " << i << ")" << endl;
+    Show(copy, size);
+    reset();
+
     std::stack<int> result;
+    /* Get more grids flooded */
     if (count > already)
     {
       already = count;
       if (count != size * size)
       {
         result = FindMinMoves(copy, grid_size, moves_allowed - 1);
-        cout << "Get result: " << result.size() << endl;
       }
+      already = count;
       result.push(i);
       results.push_back(result);
     }
@@ -296,7 +313,7 @@ std::stack<int> FindMinMoves(int** arr, int size, int moves_allowed)
     }
   }
   
-  cout << "Current min: " << results[min_index].size() << endl;
+  // cout << "Current min: " << results[min_index].size() << endl;
   return results.empty()? std::stack<int>() : results[min_index];
 }
 
@@ -318,10 +335,26 @@ std::stack<int> Game::RunAI()
   {
     color_left[i] = colours_[i];
   }
-  
   int** grids = CopyArray(grids_, grid_size_);
+  already = Count(grids, grid_size, 0, 0, grids[0][0]);
   std::stack<int> result = FindMinMoves(grids, grid_size_, moves_left_);
-  cout << "[RunAI] result: " << result.size() << endl;
+  
+  vector<int> temp;
+  cout << "AI Suggests: (" << result.size() << " steps)" << endl;
+  while (!result.empty())
+  {
+    int color = result.top();
+    cout << kColorNames[color] << endl;
+    result.pop();
+    temp.push_back(color);
+  }
+  
+  while (!temp.empty())
+  {
+    result.push(temp.back());
+    temp.pop_back();
+  }
+  
   
   for (int c = 0; c < grid_size_; c++)
   {
