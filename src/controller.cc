@@ -47,13 +47,12 @@ void Controller::Play()
   game_.Init(gridDimension, moves_);
   // game_.Init(5, moves_);
   
-  int move = 0;
+  int move = game_.GetAIMove();
   while (!quit_ && !game_.IsWon())
   {
-    move = game_.GetAIMove();
     // move = input.getMove();
     ostringstream oss;
-    oss << " (Recommand: " << kColorNames[move] << ")";
+    oss << " (Recommend: " << kColorNames[move] << ")";
     UpdateMessage(game_.GetGameStatus()+oss.str());
     if (game_.Change(move) && !game_.IsWon())
     {

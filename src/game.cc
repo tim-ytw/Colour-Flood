@@ -267,7 +267,14 @@ std::stack<int> FindMinMoves(int** arr, int size, int moves_allowed)
   if (IsComplete(arr, size)) return std::stack<int>();
   
   int origin_color = arr[0][0];
-  std::vector<std::stack<int>> results;
+  
+  int counts[COLOURTYPES+1];
+  int** copies[COLOURTYPES+1];
+  for (int i = 0; i <= COLOURTYPES; i++)
+  {
+    counts[i] = 0;
+    copies[i] = NULL;
+  }
   
   for (int i = 1; i <= COLOURTYPES; i++)
   {
@@ -276,45 +283,38 @@ std::stack<int> FindMinMoves(int** arr, int size, int moves_allowed)
     
     /* Try to do one flood */
     int** copy = CopyArray(arr, size);
-    cout << "Before: " << endl;
+    
+    cout << "Before:" << endl;
     Show(copy, size);
+    
     reset();
     Floodit(copy, size, 0, 0, origin_color, i);
     reset();
     int count = Count(copy, size, 0, 0, copy[0][0]);
-    cout << "After: (already: " << already << ",count: "
-          << count << ", colour: " << i << ")" << endl;
-    Show(copy, size);
     reset();
-
-    std::stack<int> result;
-    /* Get more grids flooded */
-    if (count > already)
-    {
-      already = count;
-      if (count != size * size)
-      {
-        result = FindMinMoves(copy, grid_size, moves_allowed - 1);
-      }
-      already = count;
-      result.push(i);
-      results.push_back(result);
-    }
-    delete copy;
-    if (count == size * size || result.size() == 1) break;
+    
+    cout << "After: count: " << count << endl;
+    Show(copy, size);
+    
+    counts[i] = count;
+    copies[i] = copy;
+    
+    if (count == size * size) break;
   }
   
-  int min_index = 0;
-  for (int i = 0; i < results.size(); i++)
+  int max_color = 0;
+  for (int i = 0; i <= COLOURTYPES; i++)
   {
-    if (results[i].size() < results[min_index].size())
-    {
-      min_index = i;
-    }
+    if (counts[i] > counts[max_color]) max_color = i;
   }
+  std::stack<int> result = FindMinMoves(copies[max_color], grid_size, moves_allowed - 1);
+  result.push(max_color);
   
-  // cout << "Current min: " << results[min_index].size() << endl;
-  return results.empty()? std::stack<int>() : results[min_index];
+  for (int i = 0; i <= COLOURTYPES; i++)
+  {
+    delete[] copies[i];
+  }
+  return result;
 }
 
 
