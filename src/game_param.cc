@@ -1,7 +1,7 @@
 // LOCAL
 #include "game_param.h"
 
-const int GRID_SIZE = 10;
+int GRID_SIZE = 10;
 int GRIDWIDTH = GRID_SIZE;
 int GRIDHEIGHT= GRID_SIZE;
 
