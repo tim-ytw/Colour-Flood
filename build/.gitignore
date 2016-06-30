@@ -1,6 +1,5 @@
 ./CMakeCache.txt
 ./Makefile
 ./cmake_install.cmake
-./CMakeFiles
-./Resources
+./CMakeFiles/*
 ./colour_flood
