@@ -38,7 +38,7 @@ You may download it from [here](https://www.libsdl.org/download-2.0.php "SDL2")
 	./colour_flood [MaxMoves] [GridSize] [AI]
 	
 For example, 
-the following command initializes a game with 20 x 20 grids and it should be flooded within 100 moves.
+the following command initializes a game with 20 x 20 grids and it should be flooded within 100 moves by AI.
 
 	./colour_flood 100 20 AI
 	
@@ -46,6 +46,6 @@ while
 
 	./colour_flood 50 15	
 	
-initializes a game with 15 x 15 grids and 50 moves are allowed at maximum.
+initializes a game with 15 x 15 grids and the player must flood it within 50 moves.
 	
 	
