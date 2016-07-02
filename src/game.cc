@@ -38,18 +38,21 @@ Game::~Game()
 }
 
 
-
+/* Note that this function should be called 
+ * after GUI object has been created */
 void Game::Init(int n, int _moves)
 {
+  int rows = n, columns = n;
   moves_left_ = _moves;
   grid_size_ = n;
   
-	int rows = n, columns = n;
-	grids_ = new int*[rows];
+  grids_ = new int*[rows];
 	for (int r = 0; r < rows; r++)
 	{
 		grids_[r] = new int[columns];
 	}
+  
+  /* Keeps track of the number of different colour */
   for (int i = 0; i < COLOURTYPES; i++)
   {
     colours_[i] = 0;
@@ -63,6 +66,7 @@ void Game::Init(int n, int _moves)
 			int color = rand() % COLOURTYPES + 1;
 			colours_[color] ++;
       grids_[r][c] = color;
+      /* GUI is updated */
 			controller_->Notify(r, c, color);
     }
 	}
@@ -88,6 +92,8 @@ bool Game::IsWon()const
 bool Game::Change(const int& state)
 {
   if (state < 0) return false;
+  
+  /* A valid colour should be different from the one at the origin */
 	if (state == grids_[0][0])
 	{
 		controller_->UpdateMessage("Try a different colour");

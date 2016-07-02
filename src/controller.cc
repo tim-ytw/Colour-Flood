@@ -80,10 +80,13 @@ int Controller::GetInput()
 {
   if (use_ai_)
   {
+    /* Flushes inputs to prevent window hang */
     input_->Flush();
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    /* Prevents GUI from being rendered too frequently */
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
   }
   
+  /* Existing inputs may come from either AI or the user */
   if (!inputs_.empty())
   {
     int input = inputs_.front();
@@ -91,6 +94,7 @@ int Controller::GetInput()
     return input;
   }
   
+  /* Otherwise, wait for user input */
   return input_->GetMove();
 }
 
@@ -137,15 +141,15 @@ void Controller::SetDimension(int dimension)
 
 void Controller::UpdateMessage()
 {
- string game_status = game_.GetGameStatus();
+ string game_status = game_.GetGameStatus()+"\n";
  if (use_ai_)
  {
-   game_status = "[AI is playing] "+game_status;
+   game_status = "[AI is playing]\n"+game_status;
  }
  else
  {
    int color_suggested = ai_->Recommend(game_.GetGrids(), gridDimension);
-   game_status = game_status + "\n [AI suggests "+kColorNames[color_suggested]+"]";
+   game_status = game_status + "[AI suggests "+kColorNames[color_suggested]+"]";
  }
  display_->UpdateMessage(game_status);
 }
