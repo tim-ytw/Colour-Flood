@@ -27,13 +27,11 @@ private:
   std::stack<int> RunAI();
   void Flood(int row, int column, int prev_state, int new_state);
   
-  std::stack<int> ai_inputs;
   Controller *controller_;
   unsigned int colours_[COLOURTYPES+1];
   int grid_size_;
   int moves_left_;
   int **grids_;
-  bool **visited_;
 };
 
 #endif

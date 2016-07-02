@@ -15,6 +15,7 @@ public:
 	~Controller();
 	
   /* Setters */
+  void SetAI(bool ai);
   void SetQuit();
 	void SetMoves(int move);
 	void SetDimension(int dimension);
@@ -28,7 +29,8 @@ private:
   int moves_;
   int gridDimension;
   bool quit_;
-
+  bool ai_;
+  
   View *display_;
   Game game_;
 };

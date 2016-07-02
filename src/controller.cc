@@ -74,6 +74,11 @@ void Controller::SetQuit()
   quit_ = true;
 }
 
+void Controller::SetAI(bool ai)
+{
+  ai_ = ai;
+}
+
 
 void Controller::SetMoves(int move)
 {
