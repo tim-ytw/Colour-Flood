@@ -42,7 +42,6 @@ Controller::~Controller()
 
 void Controller::Play()
 {
-  use_ai_ = false;
   game_ = Game(this);
   input_ = new MouseInput(this);
   display_ = new GraphicDisplay(gridDimension);
@@ -50,16 +49,21 @@ void Controller::Play()
   game_.Init(gridDimension, moves_);
   ai_ = new FloodAI(game_.GetGrids(), gridDimension, moves_, this);
   
+  UpdateMessage("AI is thinking ..");
+  std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+  
   quit_ = false;
   while (!quit_ && !game_.IsWon())
   {
-    UpdateMessage();
     int move = GetInput();
     if (move != 0)
     {
       game_.Change(move);
+      UpdateMessage();
     }
   }
+  
+  if (game_.IsWon()) std::this_thread::sleep_for(std::chrono::milliseconds(2000));
   
   delete ai_;
   delete display_;

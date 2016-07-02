@@ -85,7 +85,7 @@ void GraphicDisplay::Render()
 	{
 		for (int c = 0; c < grid_size_; c++)
 		{
-			DrawGrid(c, r, grids_[r][c]);
+			DrawGrid(r, c, grids_[r][c]);
 		}
 	}
 	RenderMessage();
@@ -113,7 +113,7 @@ void GraphicDisplay::UpdateMessageTexture(const string& message)
 	SDL_DestroyTexture(message_texture_);
   
   SDL_Surface* message_surface =
-    TTF_RenderText_Blended_Wrapped(font_, message.c_str(), kMessageColour, (int)(WINDOW_WIDTH*2.0/4.0));
+    TTF_RenderText_Blended_Wrapped(font_, message.c_str(), kMessageColour, (WINDOW_WIDTH/2));
 	
 	message_height_ = message_surface->h;
 	message_width_ = message_surface->w;
@@ -166,11 +166,11 @@ void GraphicDisplay::InitSDL(){
   message_texture_ = NULL;
 }
 
-void GraphicDisplay::DrawGrid(int x, int y, int image)
+void GraphicDisplay::DrawGrid(int row, int col, int image)
 {
   SDL_Color color = getColor(image);
   SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
-  SDL_Rect position = {x*GRIDWIDTH, y*GRIDHEIGHT, GRIDWIDTH, GRIDHEIGHT};
+  SDL_Rect position = {col*GRIDWIDTH, row*GRIDHEIGHT, GRIDWIDTH, GRIDHEIGHT};
   SDL_RenderFillRect(renderer_, &position);
 }
 
@@ -178,15 +178,18 @@ void GraphicDisplay::DrawGrid(int x, int y, int image)
 void GraphicDisplay::RenderMessage()
 {
   SDL_Rect clip = {MESSAGE_PANEL_X, MESSAGE_PANEL_Y, MESSAGE_PANEL_W, MESSAGE_PANEL_H};
+ 
+  /* Render message background */
+  SDL_SetRenderDrawColor(renderer_, 179, 209, 255, 255);
+  SDL_RenderFillRect(renderer_, &clip);
+  
+  /* Render the text */
   SDL_RenderSetViewport(renderer_, &clip);
   SDL_SetRenderDrawColor(renderer_, message_panel_colour_.r, message_panel_colour_.g, message_panel_colour_.b,message_panel_colour_.a);
-  
   SDL_Rect MESSAGE_RECT = {(MESSAGE_PANEL_W - message_width_)/2,
     (MESSAGE_PANEL_H - message_height_)/2, message_width_, message_height_};
-  
   SDL_RenderCopyEx(renderer_, message_texture_,
                    NULL, &MESSAGE_RECT, 0, NULL, SDL_FLIP_NONE);
-  
   SDL_RenderSetViewport(renderer_, NULL);
 }
 

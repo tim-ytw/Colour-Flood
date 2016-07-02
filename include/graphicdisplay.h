@@ -34,7 +34,7 @@ private:
   void QuitSDL();
   void DrawBackground();
   void RenderMessage();
-  void DrawGrid(int x, int y, int colour);
+  void DrawGrid(int row, int col, int colour);
   void UpdateMessageTexture(const std::string& message);
   
   TTF_Font* font_;

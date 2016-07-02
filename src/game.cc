@@ -113,10 +113,10 @@ void Game::Flood(int row, int col, int prev_state, int new_state)
   {
     grids_[row][col] = new_state;
     Notify(row, col, prev_state, new_state);
-    if(row != 0) Flood(row-1, col, prev_state, new_state);
-    if(col != 0) Flood(row, col-1, prev_state, new_state);
-    if(row != grid_size_-1) Flood(row+1, col, prev_state, new_state);
     if(col != grid_size_-1) Flood(row, col+1, prev_state, new_state);
+    if(row != grid_size_-1) Flood(row+1, col, prev_state, new_state);
+    if(col != 0) Flood(row, col-1, prev_state, new_state);
+    if(row != 0) Flood(row-1, col, prev_state, new_state);
   }
 }
 
@@ -134,6 +134,7 @@ string Game::GetGameStatus() const
 {
   if (IsWon() && moves_left_ > 0)
   {
+    controller_->UpdateMessage("Won");
     return "Won";
   }
   else if (moves_left_ <= 0)
