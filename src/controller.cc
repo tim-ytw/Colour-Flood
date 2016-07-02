@@ -12,6 +12,7 @@
 #include "game.h"
 #include "graphicdisplay.h"
 #include "mouseinput.h"
+#include "FloodAI.h"
 
 using namespace std;
 
@@ -44,10 +45,13 @@ void Controller::Play()
   
   game_ = Game(this);
   MouseInput input(this);
-  game_.Init(gridDimension, moves_);
   // game_.Init(5, moves_);
+  game_.Init(gridDimension, moves_);
   
-  int move = game_.GetAIMove();
+  FloodAI* ai = new FloodAI(game_.GetGrids(), gridDimension, moves_);
+  ai->Init();
+  
+  int move = ai->GetMove();
   while (!quit_ && !game_.IsWon())
   {
     // move = input.getMove();
@@ -56,7 +60,7 @@ void Controller::Play()
     UpdateMessage(game_.GetGameStatus()+oss.str());
     if (game_.Change(move) && !game_.IsWon())
     {
-      move = game_.GetAIMove();
+      move = ai->GetMove();
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
   }
@@ -64,6 +68,7 @@ void Controller::Play()
   UpdateMessage(game_.GetGameStatus());
   if (!quit_) std::this_thread::sleep_for(std::chrono::milliseconds(2000));
   
+  delete ai;
   delete display_;
   display_ = NULL;
 }

@@ -11,7 +11,7 @@ class MouseInput
 public:
 	MouseInput(Controller* controller = NULL);
   
-	int getMove();
+	int GetMove();
 	
 private:
   inline bool VerifyClick(int x, int y);

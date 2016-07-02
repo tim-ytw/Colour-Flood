@@ -13,7 +13,7 @@ MouseInput::MouseInput(Controller* controller)
 	:controller(controller) {}
 
 
-int MouseInput::getMove()
+int MouseInput::GetMove()
 {
 	int x = 0, y = 0;
 	bool quit = false;

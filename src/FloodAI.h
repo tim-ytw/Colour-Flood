@@ -27,8 +27,8 @@ public:
   FloodAI(int** arr, int size, int moves);
   ~FloodAI();
   
-  int GetAIMove();
-  void RunAI();
+  int GetMove();
+  void Init();
   void Report();
   
 private:

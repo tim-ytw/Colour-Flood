@@ -12,7 +12,7 @@
 #include <vector>
 
 // LOCAL
-#include "graphicdisplay.h"
+#include "controller.h"
 #include "FloodAI.h"
 
 
@@ -45,7 +45,7 @@ FloodAI::~FloodAI()
 }
 
 
-int FloodAI::GetAIMove()
+int FloodAI::GetMove()
 {
   int input = ai_inputs.back();
   ai_inputs.pop_back();
@@ -107,7 +107,7 @@ Moves FloodAI::FindMinMoves(int** arr, int size, int moves_allowed)
 
 
 
-void FloodAI::RunAI()
+void FloodAI::Init()
 {
   
   int** grids = CopyArray(grids_, grid_size_);
