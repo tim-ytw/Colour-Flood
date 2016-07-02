@@ -44,6 +44,8 @@ FloodAI::FloodAI(int** arr, int size, int moves, Controller* ctl)
       ai_inputs_.pop_back();
       controller_->inputs_.push(input);
     }
+    ctl->UpdateMessage("AI is thinking ..");
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
   }
 }
 

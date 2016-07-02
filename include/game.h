@@ -8,6 +8,14 @@
 
 const int COLOURTYPES = 5;
 
+enum GameStatus
+{
+  IN_PROGRESS,
+  LOST,
+  WON
+};
+
+
 class Controller;
 
 class Game
@@ -19,7 +27,7 @@ public:
 	bool IsWon() const;
   bool Change(const int& state);
   int** GetGrids() const;
-  std::string GetGameStatus() const;
+  GameStatus GetGameStatus(std::string& status) const;
   void Init(int grid_size, int moves);
   void Notify(int row, int column,
               unsigned int oldState, unsigned int newState);

@@ -40,6 +40,8 @@ Controller::~Controller()
 }
 
 
+
+
 void Controller::Play()
 {
   game_ = Game(this);
@@ -49,11 +51,9 @@ void Controller::Play()
   game_.Init(gridDimension, moves_);
   ai_ = new FloodAI(game_.GetGrids(), gridDimension, moves_, this);
   
-  UpdateMessage("AI is thinking ..");
-  std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-  
+  status_ = IN_PROGRESS;
   quit_ = false;
-  while (!quit_ && !game_.IsWon())
+  while (!quit_ && status_ == IN_PROGRESS)
   {
     int move = GetInput();
     if (move != 0)
@@ -63,11 +63,32 @@ void Controller::Play()
     }
   }
   
-  if (game_.IsWon()) std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+  if (!quit_) std::this_thread::sleep_for(std::chrono::milliseconds(2000));
   
   delete ai_;
   delete display_;
   display_ = NULL;
+}
+
+
+void Controller::UpdateMessage()
+{
+  string game_status = "";
+  status_ = game_.GetGameStatus(game_status);
+  if (status_ == IN_PROGRESS)
+  {
+    game_status += "\n";
+    if (use_ai_)
+    {
+      game_status = "[AI is playing]\n"+game_status;
+    }
+    else
+    {
+      int color_suggested = ai_->Recommend(game_.GetGrids(), gridDimension);
+      game_status = game_status + "[AI suggests "+kColorNames[color_suggested]+"]";
+    }
+  }
+  display_->UpdateMessage(game_status);
 }
 
 
@@ -142,21 +163,6 @@ void Controller::SetDimension(int dimension)
   }
 }
 
-
-void Controller::UpdateMessage()
-{
- string game_status = game_.GetGameStatus()+"\n";
- if (use_ai_)
- {
-   game_status = "[AI is playing]\n"+game_status;
- }
- else
- {
-   int color_suggested = ai_->Recommend(game_.GetGrids(), gridDimension);
-   game_status = game_status + "[AI suggests "+kColorNames[color_suggested]+"]";
- }
- display_->UpdateMessage(game_status);
-}
 
 
 void Controller::UpdateMessage(const std::string& message)

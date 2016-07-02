@@ -36,6 +36,7 @@ public:
 private:
   int GetInput();
   
+  GameStatus status_;
   bool quit_;
   bool use_ai_;
   int moves_;

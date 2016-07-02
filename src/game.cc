@@ -70,8 +70,6 @@ void Game::Init(int n, int _moves)
 			controller_->Notify(r, c, color);
     }
 	}
-  
-  controller_->UpdateMessage(GetGameStatus());
 }
 
 
@@ -130,23 +128,24 @@ void Game::Notify(int row, int column, unsigned int old_state, unsigned int new_
 
 
 
-string Game::GetGameStatus() const
+GameStatus Game::GetGameStatus(std::string& status) const
 {
   if (IsWon() && moves_left_ > 0)
   {
-    controller_->UpdateMessage("Won");
-    return "Won";
+    status = "Won";
+    return WON;
   }
   else if (moves_left_ <= 0)
   {
-    controller_->SetQuit();
-    return "Lost";
+    status = "Lost";
+    return LOST;
   }
   else
   {
     ostringstream sout;
     sout << moves_left_ << ((moves_left_ > 1)? " moves":"move") <<  " left";
-    return sout.str();
+    status = sout.str();
+    return IN_PROGRESS;
   }
 }
 
