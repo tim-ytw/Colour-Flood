@@ -4,6 +4,7 @@
 
 // CPP
 #include <iostream>
+#include <algorithm>
 #include <string>
 #include <sstream>
 
@@ -20,13 +21,21 @@ int main (int argc, char* argv[])
 		iss >> moves;
 		c.SetMoves(moves);
 	}
-	
 	if(argc > 2)
   {
 		istringstream iss(argv[2]);
 		iss >> grid;
 		c.SetDimension(grid);
 	}
+  if(argc > 3)
+  {
+    string ai;
+    istringstream iss(argv[3]);
+    iss >> ai;
+    std::transform(ai.begin(), ai.end(), ai.begin(), ::tolower);
+    c.SetAI((ai == "ai"));
+  }
+  
   if (moves < 2 * grid) cerr << "Gonna be hard : )" << endl;
     
 	c.Play();

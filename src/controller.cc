@@ -23,6 +23,7 @@ const int DefaultGridDimension = 20;
 
 Controller::Controller()
 {
+  ai_ = false;
   quit_ = false;
   display_ = NULL;
   moves_ = DefaultMoves;
@@ -45,28 +46,25 @@ void Controller::Play()
   
   game_ = Game(this);
   MouseInput input(this);
-  // game_.Init(5, moves_);
   game_.Init(gridDimension, moves_);
   
   FloodAI* ai = new FloodAI(game_.GetGrids(), gridDimension, moves_);
   ai->Init();
   
-  int move = ai->GetMove();
-  while (!quit_ && !game_.IsWon())
+  int move = 0;
+  string game_status;
+  while (!quit_)
   {
-    // move = input.getMove();
-    ostringstream oss;
-    oss << " (Recommend: " << kColorNames[move] << ")";
-    UpdateMessage(game_.GetGameStatus()+oss.str());
-    if (game_.Change(move) && !game_.IsWon())
+    move = ai_? ai->GetMove() : input.GetMove();
+    if (game_.Change(move))
     {
-      move = ai->GetMove();
+      UpdateMessage(game_.GetGameStatus());
+      quit_ = game_.IsWon();
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
   }
   
-  UpdateMessage(game_.GetGameStatus());
-  if (!quit_) std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+  std::this_thread::sleep_for(std::chrono::milliseconds(2000));
   
   delete ai;
   delete display_;
