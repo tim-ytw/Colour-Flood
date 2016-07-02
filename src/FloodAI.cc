@@ -17,11 +17,12 @@
 
 
 
-FloodAI::FloodAI(int** arr, int size, int moves)
+FloodAI::FloodAI(int** arr, int size, int moves, Controller* ctl)
 {
   grids_ = arr;
   grid_size_ = size;
-  colours_ = new int[COLOURTYPES+1];
+  controller_ = ctl;
+  
   visited_ = new bool*[grid_size_];
   for (int r = 0; r < grid_size_; r++)
   {
@@ -31,12 +32,22 @@ FloodAI::FloodAI(int** arr, int size, int moves)
       visited_[r][c] = false;
     }
   }
+  
+  if (controller_->use_ai_)
+  {
+    Init();
+    while (!ai_inputs_.empty())
+    {
+      int input = ai_inputs_.back();
+      ai_inputs_.pop_back();
+      controller_->inputs_.push(input);
+    }
+  }
 }
 
 
 FloodAI::~FloodAI()
 {
-  delete colours_;
   for (int r = 0; r < grid_size_; r++)
   {
     delete[] visited_[r];
@@ -47,9 +58,24 @@ FloodAI::~FloodAI()
 
 int FloodAI::GetMove()
 {
-  int input = ai_inputs.back();
-  ai_inputs.pop_back();
-  return input;
+  if (!ai_inputs_.empty())
+  {
+    int input = ai_inputs_.back();
+    ai_inputs_.pop_back();
+    return input;
+  }
+  return 0;
+}
+
+
+int FloodAI::PeekMove()
+{
+  if (!ai_inputs_.empty())
+  {
+    int input = ai_inputs_.back();
+    return input;
+  }
+  return 0;
 }
 
 
@@ -72,18 +98,18 @@ Moves FloodAI::FindMinMoves(int** arr, int size, int moves_allowed)
   for (int color = 1; color <= COLOURTYPES; color++)
   {
     /* Pick a different colour */
-    if (color == origin_color || colours_[color] == 0) continue;
+    if (color == origin_color) continue;
     
     /* Try to do one flood */
     int** copy = CopyArray(arr, size);
-    Floodit(copy, size, 0, 0, origin_color, color);
-    ResetVisited();
-    int count = Count(copy, size, 0, 0, copy[0][0]);
-    ResetVisited();
+    Floodit(copy, size, color);
     
     /* Record its result */
+    int count = Count(copy, size);
     counts[color] = count;
     copies[color] = copy;
+    
+    /* If done, no need for a different try */
     if (count == size * size) break;
   }
   
@@ -107,11 +133,51 @@ Moves FloodAI::FindMinMoves(int** arr, int size, int moves_allowed)
 
 
 
+int FloodAI::Recommend(int** arr, int size)
+{
+  if (IsComplete(arr, size)) return 0;
+  
+  int origin_color = arr[0][0];
+  
+  int counts[COLOURTYPES+1];
+  for (int color = 0; color <= COLOURTYPES; color++)
+  {
+    counts[color] = 0;
+  }
+  
+  for (int color = 1; color <= COLOURTYPES; color++)
+  {
+    /* Pick a different colour */
+    if (color == origin_color) continue;
+    
+    /* Try to do one flood */
+    int** copy = CopyArray(arr, size);
+    Floodit(copy, size, 0, 0, origin_color, color);
+    
+    /* Record its result */
+    counts[color] = Count(copy, size);
+    
+    if (counts[color] == size * size) break;
+  }
+  
+  /* Compare the results of flooding with different colours */
+  int max_color = 0;
+  for (int color = 0; color <= COLOURTYPES; color++)
+  {
+    if (counts[color] > counts[max_color]) max_color = color;
+  }
+
+  return max_color;
+}
+
+
+
+
+
+
 void FloodAI::Init()
 {
-  
   int** grids = CopyArray(grids_, grid_size_);
-  Count(grids, grid_size_, 0, 0, grids[0][0]);
   Moves result = FindMinMoves(grids, grid_size_, moves_left_);
   
   for (int c = 0; c < grid_size_; c++)
@@ -120,9 +186,23 @@ void FloodAI::Init()
   }
   delete grids;
   
-  ai_inputs = result;
+  ai_inputs_ = result;
 }
 
+
+void FloodAI::SetController(Controller* ctl)
+{
+  controller_ = ctl;
+}
+
+
+
+void FloodAI::Floodit(int** grids, int size, int new_state)
+{
+  ResetVisited();
+  Floodit(grids, size, 0, 0, grids[0][0], new_state);
+  ResetVisited();
+}
 
 
 void FloodAI::Floodit(int** grids, int size, int row, int col, int prev_state, int new_state)
@@ -138,6 +218,19 @@ void FloodAI::Floodit(int** grids, int size, int row, int col, int prev_state, i
     if(col != size-1) Floodit(grids, size, row, col+1, prev_state, new_state);
   }
 }
+
+
+
+
+
+int FloodAI::Count(int** grids, int size)
+{
+  ResetVisited();
+  int count = Count(grids, size, 0, 0, grids[0][0]);
+  ResetVisited();
+  return count;
+}
+
 
 
 int FloodAI::Count(int** grids, int size, int row, int col, int colour)
@@ -159,20 +252,21 @@ int FloodAI::Count(int** grids, int size, int row, int col, int colour)
 
 inline bool FloodAI::IsComplete(int** arr, int size)
 {
+  int colours[COLOURTYPES+1];
   for (int r = 0; r <= COLOURTYPES; r++)
   {
-    colours_[r] = 0;
+    colours[r] = 0;
   }
   for (int r = 0; r < size; r++)
   {
     for (int c = 0; c < size; c++)
     {
-      colours_[arr[r][c]] ++;
+      colours[arr[r][c]] ++;
     }
   }
   for (int i = 0; i <= COLOURTYPES; i++)
   {
-    int num = colours_[i];
+    int num = colours[i];
     if (num != 0 && num != size * size)
     {
       return false;
@@ -199,11 +293,12 @@ inline int** FloodAI::CopyArray(int** arr, int size)
 
 void FloodAI::ResetVisited()
 {
-  for (int r = 0; r < grid_size_; r++)
+  int size = grid_size_;
+  for (int r = 0; r < size; r++)
   {
-    for (int c = 0; c < grid_size_; c++)
+    for (int c = 0; c < size; c++)
     {
-      visited_[r][c] = false;
+      visited_[r][c] = 0;
     }
   }
 }
@@ -225,9 +320,11 @@ void FloodAI::Show(int** arr, int size)
 void FloodAI::Report()
 {
    std::cout << "AI Suggests:" << std::endl;
-   for (Moves::iterator it = ai_inputs.begin(); it != ai_inputs.end(); it++)
+   for (Moves::iterator it = ai_inputs_.begin(); it != ai_inputs_.end(); it++)
    {
      std::cout << kColorNames[*it] << std::endl;
    }
-   std::cout << ai_inputs.size() << " steps in total" << std::endl;
+   std::cout << ai_inputs_.size() << " steps in total" << std::endl;
 }
+
+

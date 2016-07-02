@@ -12,6 +12,7 @@ public:
 	MouseInput(Controller* controller = NULL);
   
 	int GetMove();
+  void Flush();
 	
 private:
   inline bool VerifyClick(int x, int y);

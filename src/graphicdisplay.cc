@@ -9,32 +9,8 @@
 
 using namespace std;
 
-const string FONT_FILE = "Resources/font.ttf";
+extern const string FONT_FILE;
 
-
-#define COLOURS \
-  COLOUR("White",   0, 255, 255, 255, 255) \
-  COLOUR("Purple",  1, 204, 153, 255, 255) \
-  COLOUR("Yellow",  2, 255, 255, 153, 255) \
-  COLOUR("Red",     3, 255, 153, 153, 255) \
-  COLOUR("Green",   4, 153, 255, 153, 255) \
-  COLOUR("Blue",    5, 102, 178, 255, 255) \
-  COLOUR("Black",   6,   0,   0,   0, 255)
-
-
-#define COLOUR(name, num, r, g, b, a) {r, g, b, a},
-const SDL_Color kColors[] =
-{
-  COLOURS
-};
-#undef COLOUR
-
-#define COLOUR(name, num, r, g, b, a) name,
-const string kColorNames[] =
-{
- COLOURS
-};
-#undef COLOUR
 
 const int kBackgroundColor = 0;
 const SDL_Color kBackgroundColour = kColors[0];
@@ -135,7 +111,9 @@ void GraphicDisplay::UpdateMessage(const string& message)
 void GraphicDisplay::UpdateMessageTexture(const string& message)
 {
 	SDL_DestroyTexture(message_texture_);
-	SDL_Surface* message_surface = TTF_RenderText_Solid(font_, message.c_str(), kMessageColour);
+  
+  SDL_Surface* message_surface =
+    TTF_RenderText_Blended_Wrapped(font_, message.c_str(), kMessageColour, (int)(WINDOW_WIDTH*2.0/4.0));
 	
 	message_height_ = message_surface->h;
 	message_width_ = message_surface->w;
@@ -208,6 +186,7 @@ void GraphicDisplay::RenderMessage()
   
   SDL_RenderCopyEx(renderer_, message_texture_,
                    NULL, &MESSAGE_RECT, 0, NULL, SDL_FLIP_NONE);
+  
   SDL_RenderSetViewport(renderer_, NULL);
 }
 

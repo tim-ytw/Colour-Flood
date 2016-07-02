@@ -16,26 +16,24 @@ MouseInput::MouseInput(Controller* controller)
 int MouseInput::GetMove()
 {
 	int x = 0, y = 0;
-	bool quit = false;
 	
 	SDL_Event e;
-	while (!quit)
-	{
-		while (SDL_PollEvent(&e) != 0)
-		{
-			quit = (e.type == SDL_QUIT);
-			if (e.type == SDL_MOUSEBUTTONDOWN &&
-          SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT) &&
-          VerifyClick(x, y))
-      {
-        int row = y / GRIDHEIGHT;
-        int col = x / GRIDWIDTH;
-        return controller->GetColor(row, col); 
-      }
-		}
-	}
-	cerr << "User just clicked quit" << endl;
-	controller->SetQuit(); 
+  while (SDL_PollEvent(&e) != 0)
+  {
+    if (e.type == SDL_QUIT)
+    {
+      std::cout << "Quit button clicked" << std::endl;
+      controller->SetQuit();
+    }
+    else if (e.type == SDL_MOUSEBUTTONDOWN &&
+        SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT) &&
+        VerifyClick(x, y))
+    {
+      int row = y / GRIDHEIGHT;
+      int col = x / GRIDWIDTH;
+      controller->AddInput(controller->GetColor(row, col)); 
+    }
+  }
 	return -1;
 }
 
@@ -47,4 +45,18 @@ inline bool MouseInput::VerifyClick(int x, int y)
           x < GAME_PANEL_WIDTH && y < GAME_PANEL_HEIGHT);
 }
 
+
+void MouseInput::Flush()
+{
+  SDL_Event e;
+  while (SDL_PollEvent(&e) != 0)
+  {
+    if (e.type == SDL_QUIT)
+    {
+      std::cout << "Quit button clicked" << std::endl;
+      controller->SetQuit();
+    }
+  }
+  // SDL_FlushEvents()
+}
 

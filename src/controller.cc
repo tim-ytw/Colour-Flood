@@ -13,6 +13,7 @@
 #include "graphicdisplay.h"
 #include "mouseinput.h"
 #include "FloodAI.h"
+#include "game_param.h"
 
 using namespace std;
 
@@ -23,7 +24,7 @@ const int DefaultGridDimension = 20;
 
 Controller::Controller()
 {
-  ai_ = false;
+  use_ai_ = false;
   quit_ = false;
   display_ = NULL;
   moves_ = DefaultMoves;
@@ -41,34 +42,56 @@ Controller::~Controller()
 
 void Controller::Play()
 {
-  quit_ = false;
+  use_ai_ = false;
+  game_ = Game(this);
+  input_ = new MouseInput(this);
   display_ = new GraphicDisplay(gridDimension);
   
-  game_ = Game(this);
-  MouseInput input(this);
   game_.Init(gridDimension, moves_);
+  ai_ = new FloodAI(game_.GetGrids(), gridDimension, moves_, this);
   
-  FloodAI* ai = new FloodAI(game_.GetGrids(), gridDimension, moves_);
-  ai->Init();
-  
-  int move = 0;
-  string game_status;
-  while (!quit_)
+  quit_ = false;
+  while (!quit_ && !game_.IsWon())
   {
-    move = ai_? ai->GetMove() : input.GetMove();
-    if (game_.Change(move))
+    UpdateMessage();
+    int move = GetInput();
+    if (move != 0)
     {
-      UpdateMessage(game_.GetGameStatus());
-      quit_ = game_.IsWon();
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      game_.Change(move);
     }
   }
   
-  std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-  
-  delete ai;
+  delete ai_;
   delete display_;
   display_ = NULL;
+}
+
+
+void Controller::AddInput(int color)
+{
+  if (!use_ai_)
+  {
+    inputs_.push(color);
+  }
+}
+
+
+int Controller::GetInput()
+{
+  if (use_ai_)
+  {
+    input_->Flush();
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  }
+  
+  if (!inputs_.empty())
+  {
+    int input = inputs_.front();
+    inputs_.pop();
+    return input;
+  }
+  
+  return input_->GetMove();
 }
 
 
@@ -79,7 +102,7 @@ void Controller::SetQuit()
 
 void Controller::SetAI(bool ai)
 {
-  ai_ = ai;
+  use_ai_ = ai;
 }
 
 
@@ -110,6 +133,23 @@ void Controller::SetDimension(int dimension)
     gridDimension = dimension;
   }
 }
+
+
+void Controller::UpdateMessage()
+{
+ string game_status = game_.GetGameStatus();
+ if (use_ai_)
+ {
+   game_status = "[AI is playing] "+game_status;
+ }
+ else
+ {
+   int color_suggested = ai_->Recommend(game_.GetGrids(), gridDimension);
+   game_status = game_status + "\n [AI suggests "+kColorNames[color_suggested]+"]";
+ }
+ display_->UpdateMessage(game_status);
+}
+
 
 void Controller::UpdateMessage(const std::string& message)
 {

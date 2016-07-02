@@ -67,7 +67,7 @@ void Game::Init(int n, int _moves)
     }
 	}
   
-  // TO DO ai_inputs = RunAI();
+  controller_->UpdateMessage(GetGameStatus());
 }
 
 
@@ -90,7 +90,7 @@ bool Game::Change(const int& state)
   if (state < 0) return false;
 	if (state == grids_[0][0])
 	{
-		controller_->UpdateMessage("Please click on a different colour : )");
+		controller_->UpdateMessage("Try a different colour");
 		return false;
 	}
   moves_left_ --;
@@ -128,16 +128,17 @@ string Game::GetGameStatus() const
 {
   if (IsWon() && moves_left_ > 0)
   {
-    return "You Win";
+    return "Won";
   }
-  else if (moves_left_ == 0)
+  else if (moves_left_ <= 0)
   {
-    return "You Lost";
+    controller_->SetQuit();
+    return "Lost";
   }
   else
   {
     ostringstream sout;
-    sout << moves_left_ << " move(s) left";
+    sout << moves_left_ << ((moves_left_ > 1)? " moves":"move") <<  " left";
     return sout.str();
   }
 }

@@ -3,13 +3,19 @@
 
 // CPP
 #include <iostream>
+#include <queue>
 
 // LOCAL
 #include "game.h"
 #include "view.h"
 
+class FloodAI;
+class MouseInput;
+
 class Controller
 {
+  friend class FloodAI;
+  
 public:
 	Controller();
 	~Controller();
@@ -22,16 +28,23 @@ public:
 	
 	void Play();
 	int GetColor(int row, int col);
+  void AddInput(int color);
+  void UpdateMessage();
   void UpdateMessage(const std::string& message);
 	void Notify(int row, int column, unsigned int state);	
   
 private:
+  int GetInput();
+  
+  bool quit_;
+  bool use_ai_;
   int moves_;
   int gridDimension;
-  bool quit_;
-  bool ai_;
+  std::queue<int> inputs_;
   
+  MouseInput* input_;
   View *display_;
+  FloodAI* ai_;
   Game game_;
 };
 

@@ -16,6 +16,7 @@
 // LOCAL
 #include "graphicdisplay.h"
 
+class Controller;
 
 extern const int COLOURTYPES;
 
@@ -24,12 +25,15 @@ typedef std::vector<int> Moves;
 class FloodAI
 {
 public:
-  FloodAI(int** arr, int size, int moves);
+  FloodAI(int** arr, int size, int moves, Controller* ctl = NULL);
   ~FloodAI();
   
-  int GetMove();
   void Init();
   void Report();
+  int GetMove();
+  int PeekMove();
+  int Recommend(int** arr, int size);
+  void SetController(Controller*);
   
 private:
   void ResetVisited();
@@ -37,11 +41,13 @@ private:
   inline int** CopyArray(int** arr, int size);
   inline bool IsComplete(int** arr, int size);
   Moves FindMinMoves(int** arr, int size, int moves_allowed);
+  int Count(int** grids, int size);
   int Count(int** grids, int size, int row, int col, int colour);
+  void Floodit(int** grids, int size, int new_state);
   void Floodit(int** grids, int size, int row, int col, int prev_state, int new_state);
   
-  Moves ai_inputs;
-  int* colours_;
+  Controller* controller_;
+  Moves ai_inputs_;
   int grid_size_;
   int ** grids_;
   bool **visited_;
