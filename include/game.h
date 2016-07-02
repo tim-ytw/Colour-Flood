@@ -18,13 +18,13 @@ public:
   
 	bool IsWon() const;
   bool Change(const int& state);
-  int GetAIMove();
+  int** GetGrids() const;
   std::string GetGameStatus() const;
   void Init(int grid_size, int moves);
-  void Notify(int row, int column, unsigned int oldState, unsigned int newState);
+  void Notify(int row, int column,
+              unsigned int oldState, unsigned int newState);
 
 private:
-  std::stack<int> RunAI();
   void Flood(int row, int column, int prev_state, int new_state);
   
   Controller *controller_;

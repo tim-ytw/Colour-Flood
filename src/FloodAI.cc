@@ -47,17 +47,17 @@ FloodAI::~FloodAI()
 
 int FloodAI::GetAIMove()
 {
-  int input = ai_inputs.top();
-  ai_inputs.pop();
+  int input = ai_inputs.back();
+  ai_inputs.pop_back();
   return input;
 }
 
 
 
 
-std::stack<int> FloodAI::FindMinMoves(int** arr, int size, int moves_allowed)
+Moves FloodAI::FindMinMoves(int** arr, int size, int moves_allowed)
 {
-  if (IsComplete(arr, size)) return std::stack<int>();
+  if (IsComplete(arr, size)) return Moves();
   
   int origin_color = arr[0][0];
   
@@ -95,8 +95,8 @@ std::stack<int> FloodAI::FindMinMoves(int** arr, int size, int moves_allowed)
   }
   
   /* Pick the best try and recurse */
-  std::stack<int> result = FindMinMoves(copies[max_color], grid_size_, moves_allowed - 1);
-  result.push(max_color);
+  Moves result = FindMinMoves(copies[max_color], grid_size_, moves_allowed - 1);
+  result.push_back(max_color);
   
   for (int color = 0; color <= COLOURTYPES; color++)
   {
@@ -107,37 +107,20 @@ std::stack<int> FloodAI::FindMinMoves(int** arr, int size, int moves_allowed)
 
 
 
-std::stack<int> FloodAI::RunAI()
+void FloodAI::RunAI()
 {
   
   int** grids = CopyArray(grids_, grid_size_);
   Count(grids, grid_size_, 0, 0, grids[0][0]);
-  std::stack<int> result = FindMinMoves(grids_, grid_size_, moves_left_);
-  
-  std::vector<int> temp;
-  std::cout << "AI Suggests:" << std::endl;
-  while (!result.empty())
-  {
-    int color = result.top();
-    std::cout << kColorNames[color] << std::endl;
-    result.pop();
-    temp.push_back(color);
-  }
-  while (!temp.empty())
-  {
-    result.push(temp.back());
-    temp.pop_back();
-  }
- std::cout << result.size() << " steps in total" << std::endl;
+  Moves result = FindMinMoves(grids, grid_size_, moves_left_);
   
   for (int c = 0; c < grid_size_; c++)
   {
     delete grids[c];
   }
   delete grids;
-  ResetVisited();
   
-  return result;
+  ai_inputs = result;
 }
 
 
@@ -236,4 +219,15 @@ void FloodAI::Show(int** arr, int size)
     }
     std::cout << std::endl;
   }
+}
+
+
+void FloodAI::Report()
+{
+   std::cout << "AI Suggests:" << std::endl;
+   for (Moves::iterator it = ai_inputs.begin(); it != ai_inputs.end(); it++)
+   {
+     std::cout << kColorNames[*it] << std::endl;
+   }
+   std::cout << ai_inputs.size() << " steps in total" << std::endl;
 }

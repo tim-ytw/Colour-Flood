@@ -11,8 +11,15 @@
 
 // CPP
 #include <stack>
+#include <vector>
+
+// LOCAL
+#include "graphicdisplay.h"
+
 
 extern const int COLOURTYPES;
+
+typedef std::vector<int> Moves;
 
 class FloodAI
 {
@@ -21,18 +28,19 @@ public:
   ~FloodAI();
   
   int GetAIMove();
-  std::stack<int> RunAI();
+  void RunAI();
+  void Report();
   
 private:
   void ResetVisited();
   void Show(int** arr, int size);
   inline int** CopyArray(int** arr, int size);
   inline bool IsComplete(int** arr, int size);
-  std::stack<int> FindMinMoves(int** arr, int size, int moves_allowed);
+  Moves FindMinMoves(int** arr, int size, int moves_allowed);
   int Count(int** grids, int size, int row, int col, int colour);
   void Floodit(int** grids, int size, int row, int col, int prev_state, int new_state);
   
-  std::stack<int> ai_inputs;
+  Moves ai_inputs;
   int* colours_;
   int grid_size_;
   int ** grids_;

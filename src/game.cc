@@ -123,6 +123,7 @@ void Game::Notify(int row, int column, unsigned int old_state, unsigned int new_
 }
 
 
+
 string Game::GetGameStatus() const
 {
   if (IsWon() && moves_left_ > 0)
@@ -142,5 +143,10 @@ string Game::GetGameStatus() const
 }
 
 
+
+int** Game::GetGrids() const
+{
+  return grids_;
+}
 
 
